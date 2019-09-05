@@ -1,0 +1,47 @@
+version: '2'
+services:
+  wordpress:
+    depends_on:
+      - db
+    image: milou/wordpress
+    build:
+      context: ./
+    restart: always
+    volumes:
+      - ./wp-content/:/var/www/html/wp-content
+    environment: 
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: p4ssw0rd!
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_TABLE_PREFIX: wp_
+    ports:
+      - 80:80 # Expose http and https
+      - 443:443
+    networks:
+      - wordpress
+  db:
+    image: mysql:5.7
+    restart: always
+    volumes:
+       - db_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: p4ssw0rd!
+    networks:
+      - wordpress
+  phpmyadmin:
+    depends_on:
+      - db
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: p4ssw0rd!
+    networks:
+      - wordpress
+networks:
+  wordpress:
+volumes:
+  db_data:
